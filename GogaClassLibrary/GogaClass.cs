@@ -226,7 +226,7 @@ namespace GogaClassLibrary
 
     public static class SerialEncryption
     {
-        static public string InverseByBase(string IncomingString, int MoveBase)
+        public static string InverseByBase(string IncomingString, int MoveBase)
         {
             if (MoveBase == 0) MoveBase = 10;
             StringBuilder InversedString = new StringBuilder();
@@ -243,7 +243,7 @@ namespace GogaClassLibrary
             return InversedString.ToString();
         }
 
-        static public string InverseString(string IncomingString)
+        public static string InverseString(string IncomingString)
         {
             StringBuilder InversedString = new StringBuilder();
             for (int Index = IncomingString.Length - 1; Index >= 0; Index--)
@@ -253,7 +253,7 @@ namespace GogaClassLibrary
             return InversedString.ToString();
         }
 
-        static public string ConvertToLetterDigit(string IncomingString)
+        public static string ConvertToLetterDigit(string IncomingString)
         {
             StringBuilder InversedString = new StringBuilder();
             foreach (char value in IncomingString)
@@ -319,19 +319,19 @@ namespace GogaClassLibrary
             return PasswordString.ToString();
         }
 
-        private static char ChangeChar(char ch, int[] EnCode)
+        private static char ChangeChar(char IncomingChar, int[] EnCode)
         {
-            ch = char.ToUpper(ch);
-            if (ch >= 'A' && ch <= 'H')
-                return Convert.ToChar(Convert.ToInt16(ch) + 2 * EnCode[0]);
-            else if (ch >= 'I' && ch <= 'P')
-                return Convert.ToChar(Convert.ToInt16(ch) - EnCode[2]);
-            else if (ch >= 'Q' && ch <= 'Z')
-                return Convert.ToChar(Convert.ToInt16(ch) - EnCode[1]);
-            else if (ch >= '0' && ch <= '4')
-                return Convert.ToChar(Convert.ToInt16(ch) + 5);
-            else if (ch >= '5' && ch <= '9')
-                return Convert.ToChar(Convert.ToInt16(ch) - 5);
+            IncomingChar = char.ToUpper(IncomingChar);
+            if (IncomingChar >= 'A' && IncomingChar <= 'H')
+                return Convert.ToChar(Convert.ToInt16(IncomingChar) + 2 * EnCode[0]);
+            else if (IncomingChar >= 'I' && IncomingChar <= 'P')
+                return Convert.ToChar(Convert.ToInt16(IncomingChar) - EnCode[2]);
+            else if (IncomingChar >= 'Q' && IncomingChar <= 'Z')
+                return Convert.ToChar(Convert.ToInt16(IncomingChar) - EnCode[1]);
+            else if (IncomingChar >= '0' && IncomingChar <= '4')
+                return Convert.ToChar(Convert.ToInt16(IncomingChar) + 5);
+            else if (IncomingChar >= '5' && IncomingChar <= '9')
+                return Convert.ToChar(Convert.ToInt16(IncomingChar) - 5);
             else
                 return '0';
         }
@@ -342,53 +342,52 @@ namespace GogaClassLibrary
         private static string RunQuery(string TableName, string MethodName)
         {
 
-            ManagementObjectSearcher MOS = new ManagementObjectSearcher(
+            ManagementObjectSearcher ObjectSearcher = new ManagementObjectSearcher(
                 "Select * from Win32_" + TableName);
-            foreach (ManagementObject MO in MOS.Get())
+            foreach (ManagementObject MObject in ObjectSearcher.Get())
             {
-
                 try
                 {
-
-                    return MO[MethodName].ToString();
+                    return MObject[MethodName].ToString();
                 }
                 catch
                 {
+
                 }
             }
             return "";
         }
 
-        private static string RemoveUseLess(string st)
+        private static string RemoveUseLess(string IncomingString)
         {
-            char ch;
-            for (int i = st.Length - 1; i >= 0; i--)
+            char value;
+            for (int i = IncomingString.Length - 1; i >= 0; i--)
             {
-                ch = char.ToUpper(st[i]);
+                value = char.ToUpper(IncomingString[i]);
 
-                if ((ch < 'A' || ch > 'Z') &&
-                    (ch < '0' || ch > '9'))
+                if ((value < 'A' || value > 'Z') &&
+                    (value < '0' || value > '9'))
                 {
-                    st = st.Remove(i, 1);
+                    IncomingString = IncomingString.Remove(i, 1);
                 }
             }
-            return st;
+            return IncomingString;
         }
 
-        public static string MakeAccessCode(string zzz)
+        public static string MakeAccessCode(string IncomingString)
         {
 
-            zzz += GetMacAddresss();
-            zzz += RunQuery("BaseBoard", "SerialNumber");
-            zzz += RunQuery("BaseBoard", "product");
-            zzz = RemoveUseLess(zzz);
-            if (zzz.Length < 25)
-                return MakeAccessCode(zzz);
+            IncomingString += GetMacAddresss();
+            IncomingString += RunQuery("BaseBoard", "SerialNumber");
+            IncomingString += RunQuery("BaseBoard", "product");
+            IncomingString = RemoveUseLess(IncomingString);
+            if (IncomingString.Length < 25)
+                return MakeAccessCode(IncomingString);
 
-            zzz = zzz.Substring(0, 25).ToUpper();
+            IncomingString = IncomingString.Substring(0, 25).ToUpper();
 
-            zzz = SerialEncryption.Boring(SerialEncryption.InverseByBase(zzz, 10));
-            return zzz;
+            IncomingString = SerialEncryption.Boring(SerialEncryption.InverseByBase(IncomingString, 10));
+            return IncomingString;
         }
 
         public static string GetMacAddresss()
@@ -398,26 +397,27 @@ namespace GogaClassLibrary
                 IPGlobalProperties computerProperties = IPGlobalProperties.GetIPGlobalProperties();
 
                 //ClientId, Computer_Name,MAC,  IP, Date/Time, ? Username 
-                NetworkInterface adapter = null; int i;
-                NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
-                if (nics == null || nics.Length < 1) return null;
-                for (i = 0; i < nics.Length; i++)
+                NetworkInterface Adapter = null; 
+                NetworkInterface[] NetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+                if (NetworkInterfaces == null || NetworkInterfaces.Length < 1) return null;
+                for (int i = 0; i < NetworkInterfaces.Length; i++)
                 {
-                    if (nics[i].NetworkInterfaceType.Equals(NetworkInterfaceType.Ethernet))
+                    if (NetworkInterfaces[i].NetworkInterfaceType.Equals(NetworkInterfaceType.Ethernet))
                     {
-                        adapter = nics[i]; break;
+                        Adapter = NetworkInterfaces[i]; break;
                     }
                 }
 
-                PhysicalAddress address = adapter.GetPhysicalAddress();
+                PhysicalAddress address = Adapter.GetPhysicalAddress();
                 byte[] bytes = address.GetAddressBytes();
-                string s = "";
-                for (i = 0; i < bytes.Length; i++) s += string.Format("{0:X2}", bytes[i]);
-                String strHostName = Dns.GetHostName();
+                string bytesString = "";
+                for (int i = 0; i < bytes.Length; i++)
+                    bytesString += string.Format("{0:X2}", bytes[i]);
+                String hostName = Dns.GetHostName();
 
-                IPAddress[] addr = Dns.GetHostAddresses(strHostName);
+                IPAddress[] addresses = Dns.GetHostAddresses(hostName);
 
-                return s;
+                return bytesString;
             }
             catch
             {
@@ -428,6 +428,196 @@ namespace GogaClassLibrary
 
 
 
+    }
+
+    public class SoftwareLocker
+    {
+        public enum SoftwareRegime
+        {
+            SendRequestRegisterServer = 0,
+            SendRequestRegisterLocal = 1,
+            MakeSerial = 2,
+            ShowServerLicense = 3
+        }
+        public enum RunTypes
+        {
+            Trial = 0,
+            Full,
+            Expired,
+            UnKnown
+        }
+
+        public RunTypes ShowDialog(Form RegDialog, SoftwareRegime Regime)
+        {
+              /*   
+            DialogResult Dialog;
+            switch (Regime)
+            {
+
+                case SoftwareRegime.SendRequestRegisterServer:
+                    if (!LocalCL.Connected) return RunTypes.UnKnown;
+                    if (SerialCL.CheckServerLicense() == true)
+                        return RunTypes.Full;
+                    RegDialog = new registration(
+                        SerialFormsCL.SFRegime.SendRequestRegisterServer);
+                    Dialog = RegDialog.ShowDialog();
+                    if (Dialog == System.Windows.Forms.DialogResult.OK)
+                    {
+                        return RunTypes.Full;
+                    }
+                    else if (Dialog == DialogResult.Retry)
+                        return RunTypes.Trial;
+                    else
+                        return RunTypes.Expired;
+
+
+                case SoftwareRegime.ShowServerLicense:
+                    if (!LocalCL.Connected) return RunTypes.UnKnown;
+
+                    RegDialog = new registration(
+                        SerialFormsCL.SFRegime.SendRequestRegisterServer);
+                    Dialog = RegDialog.ShowDialog();
+                    if (Dialog == System.Windows.Forms.DialogResult.OK)
+                    {
+                        return RunTypes.Full;
+                    }
+                    else if (Dialog == DialogResult.Retry)
+                        return RunTypes.Trial;
+                    else
+                        return RunTypes.Expired;
+
+
+                default:
+                    return RunTypes.UnKnown;
+            }
+        */
+
+            return RunTypes.UnKnown;
+
+        }
+
+        public static string LicenseChecker(SoftwareRegime Regime)
+        {
+            /*
+            RunTypes rTypes;
+
+                        SerialFormsCL.SoftLocker sLo = new SerialFormsCL.SoftLocker(LocalCL.CurDir);
+                        rTypes = sLo.ShowDialog(SFRegime.SendRequestRegisterServer);
+
+                        if (rTypes == RunTypes.Full)
+                            return "Service is Activated";
+                        else
+                            return "Service runs in demo mode";
+       */
+           
+            return "";
+        }
+    }
+
+    public static class NewLicense
+    {
+        static string AppName = "YourAppName";
+        static string MacID;
+        static string IP;
+        static string CompName;
+        static string Notes;
+
+        static string OrgName = "";
+        static string email = "";
+        static DateTime createdate = DateTime.Now;
+        static DateTime enddate = DateTime.Now.AddMonths(1);
+        static DateTime lastlogin = DateTime.Now;
+        static DateTime supportstart = DateTime.Now;
+        static DateTime supportend = DateTime.Now.AddMonths(1);
+        public static void SetLicData(string Org, string em, string Notes0)
+        {
+            OrgName = Org;
+            email = em;
+            Notes = Notes0;
+        }
+        public static int check()
+        {
+
+            GetComputerParametters(out NewLicense.CompName, out NewLicense.MacID, out NewLicense.IP);
+            string hostUrl = string.Format(
+                "http://stn.cxtgroup.com/get.php/?APPName={0}&MACID={1}"
+                , AppName, MacID);
+            Uri hostUri = new Uri(hostUrl);
+
+            WebClient webClient = new WebClient();
+
+            Stream webClientStream = webClient.OpenRead(hostUri);
+            StreamReader webClientStreamReader = new StreamReader(webClientStream);
+
+            string webClientString = webClientStreamReader.ReadToEnd();
+
+            if (webClientString == "-1")
+            {
+                Form WorkForm = new Form();
+                WorkForm.ShowDialog();
+                if (WorkForm.DialogResult == DialogResult.OK)
+                {
+                    string newHostUrl = string.Format(
+            "http://stn.cxtgroup.com/addNewRec.php/?APPName={0}&MACID={1}&IP={2}&&CompName={3}&OrgName={4}&Email={5}&CreateDate={6}"
+            + "&EndDate={7}&LastLogin={8}&SupportStart={9}&SupportEnd={10}&Notes={11}"
+            , AppName, MacID, IP, CompName, OrgName, email, createdate.ToString("yyyy-MM-dd HH:mm")
+            , "", lastlogin.ToString("yyyy-MM-dd HH:mm")
+            , supportstart.ToString("yyyy-MM-dd HH:mm"), "", Notes
+            );
+
+                    Uri newHostUri = new Uri(newHostUrl);
+                    webClientStream = webClient.OpenRead(newHostUri);
+                    return 1;
+                }
+                else
+                    return -1;
+            }
+            else
+                return int.Parse(webClientString);
+
+        }
+
+        public static void GetComputerParametters(out string ComputerName, out string MacAddress, out string outgoingIPAddress)
+        {
+            ComputerName = Dns.GetHostName();
+
+            IPAddress[] ipAddreses = Dns.GetHostAddresses(ComputerName);
+
+            outgoingIPAddress = ipAddreses[0].ToString();
+
+            try
+            {
+                IPGlobalProperties computerProperties = IPGlobalProperties.GetIPGlobalProperties();
+
+                //ClientId, Computer_Name,MAC,  IP, Date/Time, ? Username 
+                NetworkInterface networkInterface = null; int i;
+                NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+                if (networkInterfaces == null || networkInterfaces.Length < 1)
+                {
+                    MacAddress = null; 
+                    return;
+                }
+                for (i = 0; i < networkInterfaces.Length; i++)
+                {
+                    if (networkInterfaces[i].NetworkInterfaceType.Equals(NetworkInterfaceType.Ethernet))
+                    {
+                        networkInterface = networkInterfaces[i]; 
+                        break;
+                    }
+                }
+
+                PhysicalAddress address = networkInterface.GetPhysicalAddress();
+                byte[] bytes = address.GetAddressBytes();
+                string macAddressFromBytes = "";
+                for (i = 0; i < bytes.Length; i++)
+                    macAddressFromBytes += string.Format("{0:X2}", bytes[i]);
+                MacAddress = macAddressFromBytes;
+            }
+            catch
+            {
+                MacAddress = null;
+            }
+        }
     }
 
 }
